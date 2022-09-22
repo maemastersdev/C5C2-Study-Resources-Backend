@@ -80,9 +80,30 @@ app.put("/dislike/:resourceId" , async (req,res) => {
   res.json("you have decreased the likes by 1 !!!!!");
 })
 
+/*--------------------------Add to Favourites  ---------------------------------*/
+app.post("/addFav/:userId/:resourceId" , async (req,res) => {
+  try {
+    const {userId, resourceId} = req.params;
+    const response = await client.query("INSERT INTO favourites (user_id, resource_id) VALUES($1,$2) ON CONFLICT DO NOTHING", [userId,resourceId]);
+    res.json("This may have been added to your favourites if it wasn't there already");
+  } catch (error) {
+    console.error(error.message);
+    res.status(409)
+  }
+})
 
+/*--------------------------Remove Favourites  ---------------------------------*/
+app.delete("/removeFav/:userId/:resourceId" , async (req,res) => {
+  try {
+    const {userId, resourceId} = req.params;
+    const response = await client.query("DELETE FROM favourites WHERE user_id = $1 AND resource_Id = $2", [userId,resourceId]);
+    res.json("It's gone we took care of  it no longer in your favourites");
+  } catch (error) {
+    console.error(error.message);
+    res.status(409)
+  }
+})
 
- 
 //Start the server on the given port
 const port = process.env.PORT;
 if (!port) {
