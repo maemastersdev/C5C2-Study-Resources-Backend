@@ -11,8 +11,8 @@ config(); //Read .env file lines as though they were env vars.
 //For the ssl property of the DB connection config, use a value of...
 // false - when connecting to a local DB
 // { rejectUnauthorized: false } - when connecting to a heroku DB
-const herokuSSLSetting = { rejectUnauthorized: false }
-const sslSetting = process.env.LOCAL ? false : herokuSSLSetting
+const herokuSSLSetting = { rejectUnauthorized: false };
+const sslSetting = process.env.LOCAL ? false : herokuSSLSetting;
 const dbConfig = {
   connectionString: process.env.DATABASE_URL,
   ssl: sslSetting,
@@ -21,93 +21,120 @@ const dbConfig = {
 const app = express();
 
 app.use(express.json()); //add body parser to each following route handler
-app.use(cors()) //add CORS support to each following route handler
+app.use(cors()); //add CORS support to each following route handler
 
 const client = new Client(dbConfig);
 client.connect();
 /*--------------------------Get all users on the database ---------------------------------*/
 app.get("/users", async (req, res) => {
- const allUsers = await client.query("SELECT * FROM users");
- res.json(allUsers.rows)
+  const allUsers = await client.query("SELECT * FROM users");
+  res.json(allUsers.rows);
 });
-
 
 /*--------------------------Get all the study resources ---------------------------------*/
 app.get("/resources", async (req, res) => {
-  const allResources = await client.query("SELECT * FROM resources ORDER BY date DESC ");
-  res.json(allResources.rows)
- });
+  const allResources = await client.query(
+    "SELECT * FROM resources ORDER BY date DESC "
+  );
+  res.json(allResources.rows);
+});
 /*--------------------------Get all the study resources that a single user has made ---------------------------------*/
- app.get("/myPost/:userId", async (req,res) => {
-  const {userId} = req.params
-  const myPost = await client.query("SELECT resources.resource_id FROM resources INNER JOIN users ON resources.user_id=users.user_id WHERE users.user_id=$1;",[userId])
-  res.json(myPost.rows)
+app.get("/myPost/:userId", async (req, res) => {
+  const { userId } = req.params;
+  const myPost = await client.query(
+    "SELECT resources.resource_id FROM resources INNER JOIN users ON resources.user_id=users.user_id WHERE users.user_id=$1;",
+    [userId]
+  );
+  res.json(myPost.rows);
   // returns every resource id for a post a specified user has submitted
- })
+});
 
 /*--------------------------Get tags for a single resource ---------------------------------*/
-app.get("/tags/:resourceId" , async (req,res) => {
-  const {resourceId} = req.params;
-  const resourceTags = await client.query("SELECT tag from tags WHERE resource_id = $1" , [resourceId]);
+app.get("/tags/:resourceId", async (req, res) => {
+  const { resourceId } = req.params;
+  const resourceTags = await client.query(
+    "SELECT tag from tags WHERE resource_id = $1",
+    [resourceId]
+  );
   res.json(resourceTags.rows);
-})
+});
 
 /*--------------------------Get all resources for a given tag ---------------------------------*/
-app.get("/resourcesTag/:tag" , async (req,res) => {
-  const {tag} = req.params;
-  const groupedTagResources = await client.query("SELECT resource_id FROM tags WHERE tag = $1", [tag]);
+app.get("/resourcesTag/:tag", async (req, res) => {
+  const { tag } = req.params;
+  const groupedTagResources = await client.query(
+    "SELECT resource_id FROM tags WHERE tag = $1",
+    [tag]
+  );
   res.json(groupedTagResources.rows);
-})
+});
 
 /*--------------------------Get all favourites for a given user_id ---------------------------------*/
-app.get("/favourites/:userId" , async (req,res) => {
-  const {userId} = req.params;
-  const userFavourites = await client.query("SELECT resource_id FROM favourites WHERE user_id=$1 ", [userId]);
+app.get("/favourites/:userId", async (req, res) => {
+  const { userId } = req.params;
+  const userFavourites = await client.query(
+    "SELECT resource_id FROM favourites WHERE user_id=$1 ",
+    [userId]
+  );
   res.json(userFavourites.rows);
-})
+});
 
 /*--------------------------Like A Post ---------------------------------*/
-app.put("/like/:resourceId" , async (req,res) => {
-  const {resourceId} = req.params;
-  const response = await client.query("UPDATE resources SET likes =  likes + 1 WHERE resource_id = $1", [resourceId]);
+app.put("/like/:resourceId", async (req, res) => {
+  const { resourceId } = req.params;
+  const response = await client.query(
+    "UPDATE resources SET likes =  likes + 1 WHERE resource_id = $1",
+    [resourceId]
+  );
   res.json("you have increase the likes by 1 !!!!!");
-})
+});
 
 /*--------------------------Dislike A Post ---------------------------------*/
-app.put("/dislike/:resourceId" , async (req,res) => {
-  const {resourceId} = req.params;
-  const response = await client.query("UPDATE resources SET likes =  likes - 1 WHERE resource_id = $1", [resourceId]);
+app.put("/dislike/:resourceId", async (req, res) => {
+  const { resourceId } = req.params;
+  const response = await client.query(
+    "UPDATE resources SET likes =  likes - 1 WHERE resource_id = $1",
+    [resourceId]
+  );
   res.json("you have decreased the likes by 1 !!!!!");
-})
+});
 
 /*--------------------------Add to Favourites  ---------------------------------*/
-app.post("/addFav/:userId/:resourceId" , async (req,res) => {
+app.post("/addFav/:userId/:resourceId", async (req, res) => {
   try {
-    const {userId, resourceId} = req.params;
-    const response = await client.query("INSERT INTO favourites (user_id, resource_id) VALUES($1,$2) ON CONFLICT DO NOTHING", [userId,resourceId]);
-    res.json("This may have been added to your favourites if it wasn't there already");
+    const { userId, resourceId } = req.params;
+    const response = await client.query(
+      "INSERT INTO favourites (user_id, resource_id) VALUES($1,$2) ON CONFLICT DO NOTHING",
+      [userId, resourceId]
+    );
+    res.json(
+      "This may have been added to your favourites if it wasn't there already"
+    );
   } catch (error) {
     console.error(error.message);
-    res.status(409)
+    res.status(409);
   }
-})
+});
 
 /*--------------------------Remove Favourites  ---------------------------------*/
-app.delete("/removeFav/:userId/:resourceId" , async (req,res) => {
+app.delete("/removeFav/:userId/:resourceId", async (req, res) => {
   try {
-    const {userId, resourceId} = req.params;
-    const response = await client.query("DELETE FROM favourites WHERE user_id = $1 AND resource_Id = $2", [userId,resourceId]);
+    const { userId, resourceId } = req.params;
+    const response = await client.query(
+      "DELETE FROM favourites WHERE user_id = $1 AND resource_Id = $2",
+      [userId, resourceId]
+    );
     res.json("It's gone we took care of  it no longer in your favourites");
   } catch (error) {
     console.error(error.message);
-    res.status(409)
+    res.status(409);
   }
-})
+});
 
 //Start the server on the given port
 const port = process.env.PORT;
 if (!port) {
-  throw 'Missing PORT environment variable.  Set it in .env file.';
+  throw "Missing PORT environment variable.  Set it in .env file.";
 }
 app.listen(port, () => {
   console.log(`Server is up and running on port ${port}`);
