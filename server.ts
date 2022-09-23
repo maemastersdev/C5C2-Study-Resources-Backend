@@ -31,6 +31,15 @@ app.get("/users", async (req, res) => {
   res.json(allUsers.rows);
 });
 
+/*--------------------------Get single user on the database ---------------------------------*/
+app.get("/user/:id", async (req, res) => {
+  const {id} = req.params;
+  const singlUser = await client.query("SELECT user_name FROM users WHERE user_id = $1", [id]);
+  res.json(singlUser.rows);
+
+});
+
+
 /*--------------------------Get all the study resources ---------------------------------*/
 app.get("/resources", async (req, res) => {
   const allResources = await client.query(
@@ -67,6 +76,14 @@ app.get("/resourcesTag/:tag", async (req, res) => {
     [tag]
   );
   res.json(groupedTagResources.rows);
+});
+
+/*--------------------------Get all Tags ---------------------------------*/
+app.get("/tags", async (req, res) => {
+
+  const allTags = await client.query(
+    "SELECT * FROM tags");
+  res.json(allTags.rows);
 });
 
 /*--------------------------Get all favourites for a given user_id ---------------------------------*/
