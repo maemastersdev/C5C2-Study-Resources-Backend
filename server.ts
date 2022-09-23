@@ -36,7 +36,6 @@ app.get("/user/:id", async (req, res) => {
   const {id} = req.params;
   const singlUser = await client.query("SELECT user_name FROM users WHERE user_id = $1", [id]);
   res.json(singlUser.rows);
-
 });
 
 
