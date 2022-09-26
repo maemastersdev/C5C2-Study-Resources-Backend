@@ -147,6 +147,34 @@ app.delete("/removeFav/:userId/:resourceId", async (req, res) => {
   }
 });
 
+/*--------------------------Post Resource Submission  ---------------------------------*/
+app.post("/postResource", async (req, res) => {
+
+  console.log("we are in the postResource ")
+
+  try {
+    console.log(req.body)
+    const {resource_name, author_name, url, user_id, user_name, thumbnail, review} = req.body
+
+    const postResource = await client.query(
+
+  `INSERT INTO resources (resource_name, author_name, url, user_id, user_name, thumbnail, review) 
+    VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING *`,
+
+    [resource_name, author_name, url, user_id, user_name, review, thumbnail])
+
+    res.json("is this working?")
+    
+  } catch (error) {
+    console.error(error);
+    res.json("you got an error buddy")
+    
+  }
+
+});
+
+
+
 //Start the server on the given port
 const port = process.env.PORT;
 if (!port) {
