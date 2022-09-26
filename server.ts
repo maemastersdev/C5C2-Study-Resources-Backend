@@ -158,7 +158,7 @@ app.post("/postResource", async (req, res) => {
 
     const postResource = await client.query(
 
-  `INSERT INTO resources (resource_name, author_name, url, user_id, user_name, thumbnail, review) 
+  `INSERT INTO resources (resource_name, author_name, url, user_id, user_name, review, thumbnail) 
     VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING *`,
 
     [resource_name, author_name, url, user_id, user_name, review, thumbnail])
