@@ -153,15 +153,30 @@ app.post("/postResource", async (req, res) => {
   console.log("we are in the postResource ")
 
   try {
-    console.log(req.body)
-    const {resource_name, author_name, url, user_name, thumbnail, review} = req.body
+
+    const {resource_name, author_name, url, user_name, thumbnail, review, tags_array} = req.body
+
+    const finalTags = (tags_array[tags_array.length -1])
+    // console.log(tags_array[tags_array.length -1])
+    console.log(finalTags)
 
     const postResource = await client.query(
-
   `INSERT INTO resources (resource_name, author_name, url, user_name, review, thumbnail) 
     VALUES ($1,$2,$3,$4,$5,$6) RETURNING *`,
-
     [resource_name, author_name, url, user_name, review, thumbnail])
+
+    const response = (await client.query(`SELECT resource_id FROM resources WHERE url = $1`,[url])).rows
+    const resourceId = response[0].resource_id
+    console.log("the resource id is:", resourceId)
+
+   
+    if (finalTags.length > 0){
+      for (let item of finalTags){
+        const postResourceTags = await client.query(`
+        INSERT INTO tags (resource_id, tag) VALUES ($1,$2)`, [resourceId,item]
+        )
+      }
+    }
 
     res.json("is this working?")
     
