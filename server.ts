@@ -154,16 +154,16 @@ app.post("/postResource", async (req, res) => {
 
   try {
 
-    const {resource_name, author_name, url, user_name, thumbnail, review, tags_array} = req.body
+    const {resource_name, author_name, url, user_name, thumbnail, review, tags_array, content_type} = req.body
 
     const finalTags = (tags_array[tags_array.length -1])
     // console.log(tags_array[tags_array.length -1])
     console.log(finalTags)
 
     const postResource = await client.query(
-  `INSERT INTO resources (resource_name, author_name, url, user_name, review, thumbnail) 
-    VALUES ($1,$2,$3,$4,$5,$6) RETURNING *`,
-    [resource_name, author_name, url, user_name, review, thumbnail])
+  `INSERT INTO resources (resource_name, author_name, url, content_type, user_name, review, thumbnail) 
+    VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING *`,
+    [resource_name, author_name, url, content_type, user_name, review, thumbnail])
 
     const response = (await client.query(`SELECT resource_id FROM resources WHERE url = $1`,[url])).rows
     const resourceId = response[0].resource_id
