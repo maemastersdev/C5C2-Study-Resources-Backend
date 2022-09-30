@@ -144,6 +144,24 @@ app.get("/comments/:resourceId", async (req, res) => {
   
 });
 
+/*-------------------------- Post A Single Comment ---------------------------------*/
+app.post("/comment", async (req, res) => {
+
+  try {
+    const { resourceId, user_name, comment } = req.body;
+    const response = await client.query(
+    "INSERT INTO COMMENTS (resource_id, user_name, comment) VALUES($1,$2,$3) ",
+    [resourceId,user_name,comment]
+  );
+
+  res.json(response.rows);
+    
+  } catch (error) {
+    console.error(error)
+  }
+  
+});
+
 
 /*--------------------------Add to Favourites  ---------------------------------*/
 app.post("/addFav/:userId/:resourceId", async (req, res) => {
