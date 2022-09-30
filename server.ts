@@ -148,13 +148,15 @@ app.get("/comments/:resourceId", async (req, res) => {
 app.post("/comment", async (req, res) => {
 
   try {
-    const { resourceId, user_name, comment } = req.body;
+    const { resource_id, user_name, comment } = req.body;
     const response = await client.query(
     "INSERT INTO COMMENTS (resource_id, user_name, comment) VALUES($1,$2,$3) ",
-    [resourceId,user_name,comment]
+    [resource_id,user_name,comment]
   );
 
-  res.json(response.rows);
+  console.log(resource_id,user_name,comment)
+
+  res.json("your comment has been posted");
     
   } catch (error) {
     console.error(error)
