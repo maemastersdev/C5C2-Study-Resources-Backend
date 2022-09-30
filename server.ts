@@ -125,6 +125,26 @@ app.put("/dislike/:resourceId", async (req, res) => {
   res.json("you have decreased the likes by 1 !!!!!");
 });
 
+/*--------------------------Get All comments for a post ---------------------------------*/
+app.get("/comments/:resourceId", async (req, res) => {
+
+
+  try {
+    const { resourceId } = req.params;
+    const response = await client.query(
+    "SELECT * FROM comments WHERE resource_id = $1",
+    [resourceId]
+  );
+
+  res.json(response.rows);
+    
+  } catch (error) {
+    console.error(error)
+  }
+  
+});
+
+
 /*--------------------------Add to Favourites  ---------------------------------*/
 app.post("/addFav/:userId/:resourceId", async (req, res) => {
   try {
