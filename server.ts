@@ -95,6 +95,16 @@ app.get("/favourites/:userId", async (req, res) => {
   res.json(userFavourites.rows);
 });
 
+/*--------------------------Get all likes for a given resource_id ---------------------------------*/
+app.get("/likes/:resourceId", async (req, res) => {
+  const { resourceId } = req.params;
+  const likes = await client.query(
+    "SELECT likes FROM resources WHERE resource_id=$1 ",
+    [resourceId]
+  );
+  res.json(likes.rows);
+});
+
 /*--------------------------Like A Post ---------------------------------*/
 app.put("/like/:resourceId", async (req, res) => {
   const { resourceId } = req.params;
