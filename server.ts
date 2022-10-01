@@ -33,11 +33,13 @@ app.get("/users", async (req, res) => {
 
 /*--------------------------Get single user on the database ---------------------------------*/
 app.get("/user/:id", async (req, res) => {
-  const {id} = req.params;
-  const singlUser = await client.query("SELECT user_name FROM users WHERE user_id = $1", [id]);
+  const { id } = req.params;
+  const singlUser = await client.query(
+    "SELECT user_name FROM users WHERE user_id = $1",
+    [id]
+  );
   res.json(singlUser.rows);
 });
-
 
 /*--------------------------Get all the study resources ---------------------------------*/
 app.get("/resources", async (req, res) => {
@@ -46,6 +48,21 @@ app.get("/resources", async (req, res) => {
   );
   res.json(allResources.rows);
 });
+
+/*--------------------------Get A Single Study Resource For A Given resource_id ---------------------------------*/
+app.get("/resource/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const response = await client.query(
+      "SELECT * FROM resources WHERE resource_id = $1 ",
+      [id]
+    );
+    res.json(response.rows);
+  } catch (error) {
+    console.error(error);
+  }
+});
+
 /*--------------------------Get all the study resources that a single user has made ---------------------------------*/
 app.get("/myPost/:userId", async (req, res) => {
   const { userId } = req.params;
@@ -79,9 +96,7 @@ app.get("/resourcesTag/:tag", async (req, res) => {
 
 /*--------------------------Get all Tags ---------------------------------*/
 app.get("/tags", async (req, res) => {
-
-  const allTags = await client.query(
-    "SELECT * FROM tags");
+  const allTags = await client.query("SELECT * FROM tags");
   res.json(allTags.rows);
 });
 
@@ -127,43 +142,35 @@ app.put("/dislike/:resourceId", async (req, res) => {
 
 /*--------------------------Get All comments for a post ---------------------------------*/
 app.get("/comments/:resourceId", async (req, res) => {
-
-
   try {
     const { resourceId } = req.params;
     const response = await client.query(
-    "SELECT * FROM comments WHERE resource_id = $1",
-    [resourceId]
-  );
+      "SELECT * FROM comments WHERE resource_id = $1",
+      [resourceId]
+    );
 
-  res.json(response.rows);
-    
+    res.json(response.rows);
   } catch (error) {
-    console.error(error)
+    console.error(error);
   }
-  
 });
 
 /*-------------------------- Post A Single Comment ---------------------------------*/
 app.post("/comment", async (req, res) => {
-
   try {
     const { resource_id, user_name, comment } = req.body;
     const response = await client.query(
-    "INSERT INTO COMMENTS (resource_id, user_name, comment) VALUES($1,$2,$3) ",
-    [resource_id,user_name,comment]
-  );
+      "INSERT INTO COMMENTS (resource_id, user_name, comment) VALUES($1,$2,$3) ",
+      [resource_id, user_name, comment]
+    );
 
-  console.log(resource_id,user_name,comment)
+    console.log(resource_id, user_name, comment);
 
-  res.json("your comment has been posted");
-    
+    res.json("your comment has been posted");
   } catch (error) {
-    console.error(error)
+    console.error(error);
   }
-  
 });
-
 
 /*--------------------------Add to Favourites  ---------------------------------*/
 app.post("/addFav/:userId/:resourceId", async (req, res) => {
@@ -199,46 +206,62 @@ app.delete("/removeFav/:userId/:resourceId", async (req, res) => {
 
 /*--------------------------Post Resource Submission  ---------------------------------*/
 app.post("/postResource", async (req, res) => {
-
-  console.log("we are in the postResource ")
+  console.log("we are in the postResource ");
 
   try {
+    const {
+      resource_name,
+      author_name,
+      url,
+      user_name,
+      thumbnail,
+      review,
+      tags_array,
+      content_type,
+    } = req.body;
 
-    const {resource_name, author_name, url, user_name, thumbnail, review, tags_array, content_type} = req.body
-
-    const finalTags = (tags_array[tags_array.length -1])
+    const finalTags = tags_array[tags_array.length - 1];
     // console.log(tags_array[tags_array.length -1])
-    console.log(finalTags)
+    console.log(finalTags);
 
     const postResource = await client.query(
-  `INSERT INTO resources (resource_name, author_name, url, content_type, user_name, review, thumbnail) 
+      `INSERT INTO resources (resource_name, author_name, url, content_type, user_name, review, thumbnail) 
     VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING *`,
-    [resource_name, author_name, url, content_type, user_name, review, thumbnail])
+      [
+        resource_name,
+        author_name,
+        url,
+        content_type,
+        user_name,
+        review,
+        thumbnail,
+      ]
+    );
 
-    const response = (await client.query(`SELECT resource_id FROM resources WHERE url = $1`,[url])).rows
-    const resourceId = response[0].resource_id
-    console.log("the resource id is:", resourceId)
+    const response = (
+      await client.query(`SELECT resource_id FROM resources WHERE url = $1`, [
+        url,
+      ])
+    ).rows;
+    const resourceId = response[0].resource_id;
+    console.log("the resource id is:", resourceId);
 
-   
-    if (finalTags.length > 0){
-      for (let item of finalTags){
-        const postResourceTags = await client.query(`
-        INSERT INTO tags (resource_id, tag) VALUES ($1,$2)`, [resourceId,item]
-        )
+    if (finalTags.length > 0) {
+      for (let item of finalTags) {
+        const postResourceTags = await client.query(
+          `
+        INSERT INTO tags (resource_id, tag) VALUES ($1,$2)`,
+          [resourceId, item]
+        );
       }
     }
 
-    res.json("is this working?")
-    
+    res.json("is this working?");
   } catch (error) {
     console.error(error);
-    res.json("you got an error buddy")
-    
+    res.json("you got an error buddy");
   }
-
 });
-
-
 
 //Start the server on the given port
 const port = process.env.PORT;
