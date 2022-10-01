@@ -127,7 +127,7 @@ app.put("/like/:resourceId", async (req, res) => {
     "UPDATE resources SET likes =  likes + 1 WHERE resource_id = $1",
     [resourceId]
   );
-  res.json("you have increase the likes by 1 !!!!!");
+  res.json("you have increased the likes by 1 !!!!!");
 });
 
 /*--------------------------Dislike A Post ---------------------------------*/
@@ -173,12 +173,12 @@ app.post("/comment", async (req, res) => {
 });
 
 /*--------------------------Add to Favourites  ---------------------------------*/
-app.post("/addFav/:userId/:resourceId", async (req, res) => {
+app.post("/addFav/:userName/:resourceId", async (req, res) => {
   try {
-    const { userId, resourceId } = req.params;
+    const { userName, resourceId } = req.params;
     const response = await client.query(
-      "INSERT INTO favourites (user_id, resource_id) VALUES($1,$2) ON CONFLICT DO NOTHING",
-      [userId, resourceId]
+      "INSERT INTO favourites (user_name, resource_id) VALUES($1,$2) ON CONFLICT DO NOTHING",
+      [userName, resourceId]
     );
     res.json(
       "This may have been added to your favourites if it wasn't there already"
