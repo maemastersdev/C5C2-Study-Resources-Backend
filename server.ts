@@ -4,7 +4,7 @@ import express from "express";
 import cors from "cors";
 // const { EmbedBuilder, WebhookClient } = require('discord.js');
 import { EmbedBuilder, WebhookClient } from "discord.js";
-const webhookClient = new WebhookClient({ id: "1025381839952695296", token: "3B3WOqWqFnpnYTe-6KCnW4DxHmVY_D4-6frFO-Y33XJm88aT1oqbxKIHik_Tdp-y_G-M" });
+const webhookClient = new WebhookClient({ id: process.env.DISCORD_ID, token: process.env.DISCORD_TOKEN }); //put token in .ev
 config(); //Read .env file lines as though they were env vars.
 
 //Call this script with the environment variable LOCAL set if you want to connect to a local db (i.e. without SSL)
