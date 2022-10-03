@@ -286,7 +286,6 @@ app.post("/postResource", async (req, res) => {
     });
 
 
-
   } catch (error) {
     console.error(error);
     res.json("you got an error buddy")
