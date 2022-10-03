@@ -194,7 +194,7 @@ app.delete("/removeFav/:userId/:resourceId", async (req, res) => {
   try {
     const { userId, resourceId } = req.params;
     const response = await client.query(
-      "DELETE FROM favourites WHERE user_id = $1 AND resource_Id = $2",
+      "DELETE FROM favourites WHERE user_name = $1 AND resource_Id = $2",
       [userId, resourceId]
     );
     res.json("It's gone we took care of  it no longer in your favourites");
