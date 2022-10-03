@@ -4,6 +4,7 @@ import express from "express";
 import cors from "cors";
 import discord from "discord.js"
 import { EmbedBuilder, WebhookClient } from 'discord.js';
+//fine so far
 config(); //Read .env file lines as though they were env vars.
 const webhookClient = new WebhookClient({ id: process.env.DISCORD_ID, token: process.env.DISCORD_TOKEN });
 
@@ -225,29 +226,50 @@ app.get("/getFav/:userId/:resourceId", async (req, res) => {
 
 
 /*--------------------------Post Resource Submission  ---------------------------------*/
-let posted = false
 app.post("/postResource", async (req, res) => {
 
   console.log("we are in the postResource ")
 
   try {
+    const {
+      resource_name,
+      author_name,
+      url,
+      content_type,
+      learning_stage,
+      user_name,
+      thumbnail,
+      review,
+      tags_array,
 
-    const { resource_name, author_name, url, user_name, thumbnail, review, tags_array, content_type } = req.body
+    } = req.body;
 
-    const finalTags = (tags_array[tags_array.length - 1])
+    const finalTags = tags_array[tags_array.length - 1];
     // console.log(tags_array[tags_array.length -1])
     console.log(finalTags)
 
 
     const postResource = await client.query(
-      `INSERT INTO resources (resource_name, author_name, url, content_type, user_name, review, thumbnail) 
-    VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING *`,
-      [resource_name, author_name, url, content_type, user_name, review, thumbnail])
-
-    const response = (await client.query(`SELECT resource_id FROM resources WHERE url = $1`, [url])).rows
-    const resourceId = response[0].resource_id
-    console.log("the resource id is:", resourceId)
-
+      `INSERT INTO resources (resource_name, author_name, url, content_type, learning_stage, user_name, review, thumbnail) 
+    VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING *`,
+      [
+        resource_name,
+        author_name,
+        url,
+        content_type,
+        learning_stage,
+        user_name,
+        review,
+        thumbnail,
+      ]
+    );
+    const response = (
+      await client.query(`SELECT resource_id FROM resources WHERE url = $1`, [
+        url,
+      ])
+    ).rows;
+    const resourceId = response[0].resource_id;
+    console.log("the resource id is:", resourceId);
 
     if (finalTags.length > 0) {
       for (let item of finalTags) {
@@ -257,10 +279,9 @@ app.post("/postResource", async (req, res) => {
       }
     }
 
-    res.json("is this working?")
-    //
 
-    //
+    res.json("is this working?");
+
 
     const thumbnailCheck = () => {
       const imageLength = thumbnail.length > 0
@@ -285,8 +306,14 @@ app.post("/postResource", async (req, res) => {
       embeds: [embed],
     });
 
+  }
 
-  } catch (error) {
+
+
+
+
+  catch (error) {
+
     console.error(error);
     res.json("you got an error buddy")
 
