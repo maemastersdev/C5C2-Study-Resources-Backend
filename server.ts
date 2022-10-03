@@ -2,8 +2,10 @@ import { Client } from "pg";
 import { config } from "dotenv";
 import express from "express";
 import cors from "cors";
-
+import discord from "discord.js"
+import { EmbedBuilder, WebhookClient } from 'discord.js';
 config(); //Read .env file lines as though they were env vars.
+const webhookClient = new WebhookClient({ id: process.env.DISCORD_ID, token: process.env.DISCORD_TOKEN });
 
 //Call this script with the environment variable LOCAL set if you want to connect to a local db (i.e. without SSL)
 //Do not set the environment variable LOCAL if you want to connect to a heroku DB.
@@ -207,12 +209,12 @@ app.delete("/removeFav/:userId/:resourceId", async (req, res) => {
 /*--------------------------Check if resource is a favourite  ---------------------------------*/
 app.get("/getFav/:userId/:resourceId", async (req, res) => {
   try {
-    const { userId,resourceId } = req.params;
+    const { userId, resourceId } = req.params;
     const response = await client.query(
       "SELECT * FROM favourites WHERE user_name = $1 AND resource_id = $2",
       [userId, resourceId]
     );
-      const isFav = (response.rows.length > 0 ? true : false)
+    const isFav = (response.rows.length > 0 ? true : false)
 
     res.json(isFav);
   } catch (error) {
@@ -223,66 +225,76 @@ app.get("/getFav/:userId/:resourceId", async (req, res) => {
 
 
 /*--------------------------Post Resource Submission  ---------------------------------*/
+let posted = false
 app.post("/postResource", async (req, res) => {
-  console.log("we are in the postResource ");
+
+  console.log("we are in the postResource ")
 
   try {
-    const {
-      resource_name,
-      author_name,
-      url,
-      content_type,
-      learning_stage,
-      user_name,
-      thumbnail,
-      review,
-      tags_array,
-      
-    } = req.body;
 
-    const finalTags = tags_array[tags_array.length - 1];
+    const { resource_name, author_name, url, user_name, thumbnail, review, tags_array, content_type } = req.body
+
+    const finalTags = (tags_array[tags_array.length - 1])
     // console.log(tags_array[tags_array.length -1])
-    console.log(finalTags);
+    console.log(finalTags)
+
 
     const postResource = await client.query(
-      `INSERT INTO resources (resource_name, author_name, url, content_type, learning_stage, user_name, review, thumbnail) 
-    VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING *`,
-      [
-        resource_name,
-        author_name,
-        url,
-        content_type,
-        learning_stage,
-        user_name,
-        review,
-        thumbnail,
-      ]
-    );
+      `INSERT INTO resources (resource_name, author_name, url, content_type, user_name, review, thumbnail) 
+    VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING *`,
+      [resource_name, author_name, url, content_type, user_name, review, thumbnail])
 
-    const response = (
-      await client.query(`SELECT resource_id FROM resources WHERE url = $1`, [
-        url,
-      ])
-    ).rows;
-    const resourceId = response[0].resource_id;
-    console.log("the resource id is:", resourceId);
+    const response = (await client.query(`SELECT resource_id FROM resources WHERE url = $1`, [url])).rows
+    const resourceId = response[0].resource_id
+    console.log("the resource id is:", resourceId)
+
 
     if (finalTags.length > 0) {
       for (let item of finalTags) {
-        const postResourceTags = await client.query(
-          `
-        INSERT INTO tags (resource_id, tag) VALUES ($1,$2)`,
-          [resourceId, item]
-        );
+        const postResourceTags = await client.query(`
+        INSERT INTO tags (resource_id, tag) VALUES ($1,$2)`, [resourceId, item]
+        )
       }
     }
 
-    res.json("is this working?");
+    res.json("is this working?")
+    //
+
+    //
+
+    const thumbnailCheck = () => {
+      const imageLength = thumbnail.length > 0
+      if (imageLength) {
+        return (thumbnail)
+      }
+      else {
+        return "https://assets.goodspeed.io/img/blog/10-best-places-to-see-the-northern-lights.4772723ac245f014.jpg"
+      }
+    } //sets default image of webhook thumbnail (northern lights)
+    const embed = new EmbedBuilder()
+      .setTitle(`${user_name} - has posted: ${resource_name}`)
+      .setImage(thumbnailCheck())
+      .setDescription(`${review} Follow this link here to check it out: https://c5c2-study-resources.netlify.app/study/${resourceId}`)
+      .setColor(0x00FFFF);
+    // const { resource_name, author_name, url, user_name, thumbnail, review, tags_array, content_type } = req.body
+    console.log(embed)
+    webhookClient.send({
+      content: ``,
+      username: 'Resources',
+      avatarURL: 'https://i.pinimg.com/originals/18/b5/a4/18b5a451191bda28ebe4708c864ee464.jpg',
+      embeds: [embed],
+    });
+
+
+
   } catch (error) {
     console.error(error);
-    res.json("you got an error buddy");
+    res.json("you got an error buddy")
+
   }
+
 });
+
 
 //Start the server on the given port
 const port = process.env.PORT;
