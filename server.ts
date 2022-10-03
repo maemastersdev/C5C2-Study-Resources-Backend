@@ -204,6 +204,24 @@ app.delete("/removeFav/:userId/:resourceId", async (req, res) => {
   }
 });
 
+/*--------------------------Check if resource is a favourite  ---------------------------------*/
+app.get("/getFav/:userId/:resourceId", async (req, res) => {
+  try {
+    const { userId,resourceId } = req.params;
+    const response = await client.query(
+      "SELECT * FROM favourites WHERE user_name = $1 AND resource_id = $2",
+      [userId, resourceId]
+    );
+      const isFav = (response.rows.length > 0 ? true : false)
+
+    res.json(isFav);
+  } catch (error) {
+    console.error(error.message);
+    res.status(409);
+  }
+});
+
+
 /*--------------------------Post Resource Submission  ---------------------------------*/
 app.post("/postResource", async (req, res) => {
   console.log("we are in the postResource ");
