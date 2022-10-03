@@ -19,6 +19,7 @@ const sslSetting = process.env.LOCAL ? false : herokuSSLSetting;
 const dbConfig = {
   connectionString: process.env.DATABASE_URL,
   ssl: sslSetting,
+
 };
 
 const app = express();
