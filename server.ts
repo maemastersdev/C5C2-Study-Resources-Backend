@@ -226,7 +226,7 @@ app.get("/getFav/:userId/:resourceId", async (req, res) => {
 
 
 /*--------------------------Post Resource Submission  ---------------------------------*/
-let posted = false;
+
 
 app.post("/postResource", async (req, res) => {
   console.log("we are in the postResource ");
