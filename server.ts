@@ -296,7 +296,7 @@ app.post("/postResource", async (req, res) => {
     const embed = new EmbedBuilder()
       .setTitle(`${user_name} - has posted: ${resource_name}`)
       .setImage(thumbnailCheck())
-      .setDescription(`${review} Follow this link here to check it out: ${url}`)
+      .setDescription(`${review} Follow this link here to check it out: ${url}/study/${resourceId}`)
       .setColor(0x00FFFF);
     // const { resource_name, author_name, url, user_name, thumbnail, review, tags_array, content_type } = req.body
     console.log(embed)
