@@ -19,6 +19,7 @@ const sslSetting = process.env.LOCAL ? false : herokuSSLSetting;
 const dbConfig = {
   connectionString: process.env.DATABASE_URL,
   ssl: sslSetting,
+
 };
 
 const app = express();
@@ -277,12 +278,11 @@ app.post("/postResource", async (req, res) => {
         INSERT INTO tags (resource_id, tag) VALUES ($1,$2)`, [resourceId, item]
         )
       }
+
     }
 
 
     res.json("is this working?");
-
-
     const thumbnailCheck = () => {
       const imageLength = thumbnail.length > 0
       if (imageLength) {
@@ -306,13 +306,8 @@ app.post("/postResource", async (req, res) => {
       embeds: [embed],
     });
 
-  }
-
-
-
-
-
-  catch (error) {
+webhookTesting
+  } catch (error) {
 
     console.error(error);
     res.json("you got an error buddy")
