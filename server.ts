@@ -67,16 +67,16 @@ app.get("/resource/:id", async (req, res) => {
   }
 });
 
-/*--------------------------Get all the study resources that a single user has made ---------------------------------*/
-app.get("/myPost/:userId", async (req, res) => {
-  const { userId } = req.params;
-  const myPost = await client.query(
-    "SELECT resources.resource_id FROM resources INNER JOIN users ON resources.user_id=users.user_id WHERE users.user_id=$1;",
-    [userId]
-  );
-  res.json(myPost.rows);
-  // returns every resource id for a post a specified user has submitted
-});
+// /*--------------------------Get all the study resources that a single user has made ---------------------------------*/
+// app.get("/myPost/:userId", async (req, res) => {
+//   const { userId } = req.params;
+//   const myPost = await client.query(
+//     "SELECT resources.resource_id FROM resources INNER JOIN users ON resources.user_id=users.user_id WHERE users.user_id=$1;",
+//     [userId]
+//   );
+//   res.json(myPost.rows);
+//   // returns every resource id for a post a specified user has submitted
+// });
 
 /*--------------------------Get tags for a single resource ---------------------------------*/
 app.get("/tags/:resourceId", async (req, res) => {
@@ -228,7 +228,8 @@ app.get("/getFav/:userId/:resourceId", async (req, res) => {
 
 /*--------------------------Post Resource Submission  ---------------------------------*/
 app.post("/postResource", async (req, res) => {
-  console.log("we are in the postResource ");
+
+  console.log("we are in the postResource ")
 
   try {
     const {
@@ -246,7 +247,8 @@ app.post("/postResource", async (req, res) => {
 
     const finalTags = tags_array[tags_array.length - 1];
     // console.log(tags_array[tags_array.length -1])
-    console.log(finalTags);
+    console.log(finalTags)
+
 
     const postResource = await client.query(
       `INSERT INTO resources (resource_name, author_name, url, content_type, learning_stage, user_name, review, thumbnail) 
@@ -262,7 +264,6 @@ app.post("/postResource", async (req, res) => {
         thumbnail,
       ]
     );
-
     const response = (
       await client.query(`SELECT resource_id FROM resources WHERE url = $1`, [
         url,
@@ -273,14 +274,13 @@ app.post("/postResource", async (req, res) => {
 
     if (finalTags.length > 0) {
       for (let item of finalTags) {
-        const postResourceTags = await client.query(
-          `
-        INSERT INTO tags (resource_id, tag) VALUES ($1,$2)`,
-          [resourceId, item]
-        );
+        const postResourceTags = await client.query(`
+        INSERT INTO tags (resource_id, tag) VALUES ($1,$2)`, [resourceId, item]
+        )
       }
 
     }
+
 
     res.json("is this working?");
     const thumbnailCheck = () => {
@@ -306,11 +306,16 @@ app.post("/postResource", async (req, res) => {
       embeds: [embed],
     });
 
+webhookTesting
   } catch (error) {
+
     console.error(error);
-    res.json("you got an error buddy");
+    res.json("you got an error buddy")
+
   }
+
 });
+
 
 //Start the server on the given port
 const port = process.env.PORT;
