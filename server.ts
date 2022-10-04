@@ -2,7 +2,8 @@ import { Client } from "pg";
 import { config } from "dotenv";
 import express from "express";
 import cors from "cors";
-
+import axios from 'axios'
+import moment from "moment";
 //fine so far
 config(); //Read .env file lines as though they were env vars.
 
@@ -314,20 +315,17 @@ app.post("/postResource", async (req, res) => {
 
     }
 
-
     res.json("is this working?");
-    const thumbnailCheck = () => {
+    const thumbnailCheck = async () => {
       const imageLength = thumbnail.length > 0
-      if (imageLength) {
-        return (thumbnail)
-      }
-      else {
-        return "https://assets.goodspeed.io/img/blog/10-best-places-to-see-the-northern-lights.4772723ac245f014.jpg"
-      }
-    } //sets default image of webhook thumbnail (northern lights)
+      !imageLength && await client.query("UPDATE resources SET thumbnai= 'https://images4.alphacoders.com/936/936378.jpg' WHERE resource_id = $1  ", [resourceId]);
+    }
     
-    // const { resource_name, author_name, url, user_name, thumbnail, review, tags_array, content_type } = req.body
-   
+    await axios.post(process.env.DISCORD_URL,
+      {content: ` @everyone A new study resource has been posted by ${user_name} ${moment(new Date()).fromNow()} check it out here: https://c5c2-study-resources.netlify.app/study/${resourceId}`});
+
+
+
   } catch (error) {
 
     console.error(error);
