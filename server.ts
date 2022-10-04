@@ -107,7 +107,7 @@ app.get("/tags", async (req, res) => {
 app.get("/favourites/:userId", async (req, res) => {
   const { userId } = req.params;
   const userFavourites = await client.query(
-    "SELECT resource_id FROM favourites WHERE user_id=$1 ",
+    "SELECT resource_id FROM favourites WHERE user_name=$1 ",
     [userId]
   );
   res.json(userFavourites.rows);
