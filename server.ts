@@ -115,6 +115,20 @@ app.get("/favourites/:userId", async (req, res) => {
 });
 
 /*--------------------------Get all likes for a given resource_id ---------------------------------*/
+app.get("/hasLiked/:userName/:resourceId", async (req, res) => {
+  const { userName , resourceId} = req.params;
+  console.log(userName,resourceId)
+  
+  const likes = await client.query(
+    "SELECT * FROM users_likes WHERE user_name = $1 AND resource_id = $2 ",
+    [userName, resourceId]
+  );
+  
+  const hasLiked = likes.rows.length > 0;
+  
+  res.json((hasLiked ? true : false));
+});
+/*--------------------------Check if user has liked a certain resource---------------------------------*/
 app.get("/likes/:resourceId", async (req, res) => {
   const { resourceId } = req.params;
   const likes = await client.query(
@@ -124,23 +138,43 @@ app.get("/likes/:resourceId", async (req, res) => {
   res.json(likes.rows);
 });
 
+
 /*--------------------------Like A Post ---------------------------------*/
-app.put("/like/:resourceId", async (req, res) => {
-  const { resourceId } = req.params;
-  const response = await client.query(
+app.put("/like/:userId/:resourceId", async (req, res) => {
+
+  try {
+    const { userId, resourceId } = req.params;
+  const updateResources = await client.query(
     "UPDATE resources SET likes =  likes + 1 WHERE resource_id = $1",
     [resourceId]
   );
+
+  const updateLikesTable = await client.query(
+    "INSERT INTO users_likes (user_name, resource_id) VALUES ($1, $2)", [userId,resourceId]
+  )
+
+
   res.json("you have increased the likes by 1 !!!!!");
+    
+  } catch (error) {
+    console.error(error);
+    res.json("You can't like a post more than once!")
+    
+  }
 });
 
 /*--------------------------Dislike A Post ---------------------------------*/
-app.put("/dislike/:resourceId", async (req, res) => {
-  const { resourceId } = req.params;
+app.put("/dislike/:userId/:resourceId", async (req, res) => {
+  const { userId,resourceId } = req.params;
   const response = await client.query(
     "UPDATE resources SET likes =  likes - 1 WHERE resource_id = $1",
     [resourceId]
   );
+  
+  const removeLike = await client.query(
+    "DELETE FROM users_likes WHERE user_name =$1 AND resource_id = $2", [userId,resourceId]
+  )
+
   res.json("you have decreased the likes by 1 !!!!!");
 });
 
