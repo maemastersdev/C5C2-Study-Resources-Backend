@@ -117,7 +117,7 @@ app.get("/favourites/:userId", async (req, res) => {
 /*--------------------------Get all likes for a given resource_id ---------------------------------*/
 app.get("/hasLiked/:userName/:resourceId", async (req, res) => {
   const { userName , resourceId} = req.params;
-  console.log(userName,resourceId)
+  
   
   const likes = await client.query(
     "SELECT * FROM users_likes WHERE user_name = $1 AND resource_id = $2 ",
@@ -202,7 +202,7 @@ app.post("/comment", async (req, res) => {
       [resource_id, user_name, comment]
     );
 
-    console.log(resource_id, user_name, comment);
+   
 
     res.json("your comment has been posted");
   } catch (error) {
@@ -263,7 +263,7 @@ app.get("/getFav/:userId/:resourceId", async (req, res) => {
 /*--------------------------Post Resource Submission  ---------------------------------*/
 app.post("/postResource", async (req, res) => {
 
-  console.log("we are in the postResource ")
+ 
 
   try {
     const {
@@ -280,9 +280,9 @@ app.post("/postResource", async (req, res) => {
     } = req.body;
 
     const finalTags = tags_array[tags_array.length - 1];
-    // console.log(tags_array[tags_array.length -1])
-    console.log(finalTags)
+  
 
+    console.log(learning_stage)
 
     const postResource = await client.query(
       `INSERT INTO resources (resource_name, author_name, url, content_type, learning_stage, user_name, review, thumbnail) 
@@ -304,7 +304,7 @@ app.post("/postResource", async (req, res) => {
       ])
     ).rows;
     const resourceId = response[0].resource_id;
-    console.log("the resource id is:", resourceId);
+  
 
     if (finalTags.length > 0) {
       for (let item of finalTags) {
