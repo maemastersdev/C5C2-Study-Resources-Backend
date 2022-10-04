@@ -282,8 +282,6 @@ app.post("/postResource", async (req, res) => {
     const finalTags = tags_array[tags_array.length - 1];
   
 
-    console.log(learning_stage)
-
     const postResource = await client.query(
       `INSERT INTO resources (resource_name, author_name, url, content_type, learning_stage, user_name, review, thumbnail) 
     VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING *`,
