@@ -313,7 +313,7 @@ app.post("/postResource", async (req, res) => {
 
     }
 
-    res.json("is this working?");
+    res.json("Post Success");
     const thumbnailCheck = async () => {
       const imageLength = thumbnail.length > 0
       !imageLength && await client.query("UPDATE resources SET thumbnai= 'https://images4.alphacoders.com/936/936378.jpg' WHERE resource_id = $1  ", [resourceId]);
